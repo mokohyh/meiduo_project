@@ -9,6 +9,7 @@ from django_redis import get_redis_connection
 
 from meiduo_mall.utils.response_code import RETCODE
 from verifications.libs.captcha.captcha import captcha
+from verifications.libs.yuntongxun.ccp_sms import sendTemplateSMS
 
 # 短信验证码
 class SMSCodeView(View):
@@ -62,8 +63,10 @@ class SMSCodeView(View):
         pl.execute()
 
 
-        # 发送短信（这里使用twilio发送短信）
-
+        # 发送短信
+        # 注意： 测试的短信模板编号为1
+        sendTemplateSMS('15750258025', [sms_code, 1], 1)
+        # sendTemplateSMS(mobile, [sms_code, 1], 1)
 
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})
 

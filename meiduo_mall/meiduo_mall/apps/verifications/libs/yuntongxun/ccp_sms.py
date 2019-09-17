@@ -6,13 +6,13 @@
 from .CCPRestSDK import REST
 
 # 说明：主账号，登陆云通讯网站后，可在"控制台-应用"中看到开发者主账号ACCOUNT SID
-_accountSid = '8aaf070862181ad5016236f3bcc811d5'
+_accountSid = '8aaf07086d05d00c016d351cd22b1802'
 
 # 说明：主账号Token，登陆云通讯网站后，可在控制台-应用中看到开发者主账号AUTH TOKEN
-_accountToken = '4e831592bd464663b0de944df13f16ef'
+_accountToken = 'c370f4c297034c82a15e0e8f795e2421'
 
 # 请使用管理控制台首页的APPID或自己创建应用的APPID
-_appId = '8aaf070868747811016883f12ef3062c'
+_appId = '8aaf07086d05d00c016d351cd2771808'
 
 # 说明：请求地址，生产环境配置成app.cloopen.com
 _serverIP = 'sandboxapp.cloopen.com'
@@ -38,6 +38,4 @@ def sendTemplateSMS(to, datas, tempId):
     print(result)
 
 
-if __name__ == '__main__':
-    # 注意： 测试的短信模板编号为1
-    sendTemplateSMS('17600992168', ['123456', 5], 1)
+
