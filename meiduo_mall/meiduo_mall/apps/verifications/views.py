@@ -52,17 +52,19 @@ class SMSCodeView(View):
 
         # logger.info(sms_code)
         # 保存短信验证码
-        redis_conn.setex('sms_%s'%uuid, 300, sms_code)
+        # pipeline 操作数据库
+        pl = redis_conn.pipeline()
+        pl.setex('sms_%s'%uuid, 300, sms_code)
         # 将用户的手机号存入redis
         # redis_conn.setex('send_flag_%s' % mobile, constants.SEND_SMS_CODE_INTERVAL, 1')
-        redis_conn.setex('send_flag_%s' % mobile, 300, 1)
+        pl.setex('send_flag_%s' % mobile, 300, 1)
+        # 执行请求
+        pl.execute()
 
 
         # 发送短信（这里使用twilio发送短信）
-        # Note类的send_one_note方法的参数
-        #sms_code是短信验证吗, expiration_time是过期时间,mobile手机号
-        expiration_time = 1
-        # Note().send_one_note(sms_code, expiration_time,mobile)
+
+
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})
 
 
