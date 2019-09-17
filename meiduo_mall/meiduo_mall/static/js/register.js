@@ -80,12 +80,14 @@ let vm = new Vue({
                         }, 1000)
                     } else {
                         if (response.data.code == 4001) {
-                            this.error_image_code_message = response.data.errmsg;
-                            this.error_image_code = true;
+                            this.error_tip_message = response.data.errmsg;
+                            this.error_tip = true;
                         } else if (response.data.code == 4002) {
-                            this.error_image_code_message = response.data.errmsg;
+                            this.error_tip_message = response.data.errmsg;
                             this.generate_image_code();
-                            this.error_image_code = true;
+                            this.error_tip = true;
+                        }else { // 4003
+                            console.log(response.data)
                         }
                         this.sending_flag = false;
                     }

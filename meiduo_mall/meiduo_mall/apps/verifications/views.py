@@ -22,15 +22,20 @@ class SMSCodeView(View):
         image_code_client = request.GET.get('image_code')
         uuid = request.GET.get('uuid')
 
+        redis_conn = get_redis_connection('verify_code')
+        # 提取redis里对应的手机号，判断send_flag
+        send_flag = redis_conn.get('send_flag_%s' % mobile)
+        if send_flag:
+            return http.JsonResponse({'code': RETCODE.THROTTLINGERR, 'errmsg': '发送短信过于频繁'})
+
         # 校验参数
         if not all([uuid, image_code_client]):
             return http.JsonResponse({'code': RETCODE.NECESSARYPARAMERR, 'errmsg': '缺少必传参数'})
 
         # 提取图片验证码
-        redis_conn = get_redis_connection('verify_code')
         image_code_server = redis_conn.get('img_%s'%uuid)
         if image_code_server == None:
-            return http.JsonResponse({'code':RETCODE.THROTTLINGERR, 'errmsg': '验证码已失效'})
+            return http.JsonResponse({'code':RETCODE.IMAGECODEERR, 'errmsg': '验证码已失效'})
         # 删除图形验证码
         redis_conn.delete('img_%s'%uuid)
 
@@ -40,11 +45,19 @@ class SMSCodeView(View):
         if image_code_client.lower() != image_code_server.lower():
             return http.JsonResponse({'code':RETCODE.IMAGECODEERR, 'errmsg': '验证码有误'})
 
+
+
         # 生成短信验证码
         sms_code = '%06d'%random.randint(0,999999)
+
         # logger.info(sms_code)
         # 保存短信验证码
         redis_conn.setex('sms_%s'%uuid, 300, sms_code)
+        # 将用户的手机号存入redis
+        # redis_conn.setex('send_flag_%s' % mobile, constants.SEND_SMS_CODE_INTERVAL, 1')
+        redis_conn.setex('send_flag_%s' % mobile, 300, 1)
+
+
         # 发送短信（这里使用twilio发送短信）
         # Note类的send_one_note方法的参数
         #sms_code是短信验证吗, expiration_time是过期时间,mobile手机号
