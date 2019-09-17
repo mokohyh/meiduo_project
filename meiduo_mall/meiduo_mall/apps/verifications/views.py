@@ -53,6 +53,7 @@ class SMSCodeView(View):
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})
 
 
+
 # 图片验证码
 class ImageCodeView(View):
     def get(self,request, uuid):

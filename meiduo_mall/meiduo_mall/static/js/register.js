@@ -228,9 +228,10 @@ let vm = new Vue({
             this.check_passwork2();
             this.check_mobile();
             this.check_allow();
+            this.check_sms_code();
 
             if (this.error_name == true || this.error_password == true || this.error_password2 == true
-                || this.error_mobile == true || this.error_allow == true) {
+                || this.error_mobile == true || this.error_allow == true || this.error_tip==true) {
                 // 禁用表单的提交
                 window.event.returnValue = false;
             }

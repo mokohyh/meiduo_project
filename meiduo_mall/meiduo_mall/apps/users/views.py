@@ -8,6 +8,8 @@ from django.views import View
 
 
 # Create your views here.
+from django_redis import get_redis_connection
+
 from meiduo_mall.utils.response_code import RETCODE
 from users.models import User
 
@@ -52,9 +54,10 @@ class Register(View):
         password2 = request.POST.get('password2')
         mobile = request.POST.get('mobile')
         allow = request.POST.get('allow')
+        sms_code_client = request.POST.get('sms_code')
 
         # 判断参数是否齐全
-        if not all([username, password, password2, mobile, allow]):
+        if not all([username, password, password2, mobile, allow, sms_code_client]):
             return http.HttpResponseForbidden("参数不全")
 
         # 判断用户名是否是5-20个字符
@@ -76,6 +79,14 @@ class Register(View):
         # 判断是否勾选用户协议
         if allow != 'on':
             return http.HttpResponseForbidden("请勾选协议")
+
+        # 保存注册数据之前，对比短信验证码
+        redis_conn = get_redis_connection('verify_code')
+        sms_code_server = redis_conn.get('sms_%s' % mobile)
+        if sms_code_server is None:
+            return render(request,'register.html',  {'sms_code_errmsg':'无效的短信验证码'})
+        if sms_code_server != sms_code_client:
+            return render(request, 'register.html', {'sms_code_errmsg': '输入短信验证码有误'})
 
         # 以上都没有错就执行注册数据库
         try:
