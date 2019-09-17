@@ -20,6 +20,7 @@ let vm = new Vue({
         error_mobile: false,
         error_allow: false,
         error_image_code: false,
+        sending_flag: false,    // 来判定重复点击的
 
         error_name_message: '',		// 用户名错误提示
         error_mobile_message: '',	// 密码错误提示
@@ -35,12 +36,17 @@ let vm = new Vue({
 
         // 校验短信验证码
         send_sms_code() {
+            // 判断是否重复点击
+            if (this.sending_flag == true) {
+                return;
+            }
+
             // 校验图形验证码和校验手机号参数
             this.check_mobile();
             this.check_image_code();
             // 假如有一个参数不对就回退
             if (this.error_mobile == true || this.error_image_code == true) {
-                alert(111111111111111111);
+                this.sending_flag == false;
                 return;
             }
 
@@ -62,19 +68,23 @@ let vm = new Vue({
                                 this.sms_code_tip = '获取短信验证码';
                                 // 刷新验证码
                                 this.generate_image_code();
+                                this.sending_flag = false;
                             } else {
                                 num -= 1;
                                 // 展示秒数
                                 this.sms_code_tip = num + '秒';
                             }
                         }, 1000)
-                    } else if (response.data.code == 4001){
-                        this.error_image_code_message = response.data.errmsg;
-                        this.error_image_code = true;
-                    } else if (response.data.code == 4002){
-                        this.error_image_code_message = response.data.errmsg;
-                        this.generate_image_code();
-                        this.error_image_code = true;
+                    } else {
+                        if (response.data.code == 4001) {
+                            this.error_image_code_message = response.data.errmsg;
+                            this.error_image_code = true;
+                        } else if (response.data.code == 4002) {
+                            this.error_image_code_message = response.data.errmsg;
+                            this.generate_image_code();
+                            this.error_image_code = true;
+                        }
+                        this.sending_flag = false;
                     }
 
                 })
