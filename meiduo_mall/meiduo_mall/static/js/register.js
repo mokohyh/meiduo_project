@@ -9,9 +9,9 @@ let vm = new Vue({
         mobile: '',			// 手机号
         allow: '',			// 同意协议
         uuid: '',			// uuid
-        image_code:'',
+        image_code: '',
         image_code_url: '',  // 图形验证码请求地址
-        sms_code_tip:'获取短信验证码',
+        sms_code_tip: '获取短信验证码',
 
 
         error_name: false,
@@ -19,11 +19,11 @@ let vm = new Vue({
         error_password2: false,
         error_mobile: false,
         error_allow: false,
-        error_image_code:false,
+        error_image_code: false,
 
         error_name_message: '',		// 用户名错误提示
         error_mobile_message: '',	// 密码错误提示
-        error_image_code_message :'', // 验证码错误提示
+        error_image_code_message: '', // 验证码错误提示
     },
     // 当页面加载结束，加载图片验证码
     mounted() {
@@ -34,7 +34,54 @@ let vm = new Vue({
     methods: {
 
         // 校验短信验证码
-        send_sms_code(){
+        send_sms_code() {
+            // 校验图形验证码和校验手机号参数
+            this.check_mobile();
+            this.check_image_code();
+            // 假如有一个参数不对就回退
+            if (this.error_mobile == true || this.error_image_code == true) {
+                alert(111111111111111111);
+                return;
+            }
+
+            // ajax请求验证码
+            let url = 'sms_codes/' + this.mobile + '/?image_code=' + this.image_code + '&uuid=' + this.uuid;
+            axios.get(url, {
+                responseType: "JSON"
+            })
+                .then(response => {
+                    // 判断后端响应的类型
+                    alert(response.data.code);
+                    if (response.data.code == 0) {
+                        //响应成功，开始倒计时
+                        let num = 60;
+                        let t = setInterval(() => {
+                            // 当倒计时到最后1秒的时候，结束这个函数
+                            if (num == 1) {
+                                clearInterval(t);
+                                this.sms_code_tip = '获取短信验证码';
+                                // 刷新验证码
+                                this.generate_image_code();
+                            } else {
+                                num -= 1;
+                                // 展示秒数
+                                this.sms_code_tip = num + '秒';
+                            }
+                        }, 1000)
+                    } else if (response.data.code == 4001){
+                        this.error_image_code_message = response.data.errmsg;
+                        this.error_image_code = true;
+                    } else if (response.data.code == 4002){
+                        this.error_image_code_message = response.data.errmsg;
+                        this.generate_image_code();
+                        this.error_image_code = true;
+                    }
+
+                })
+                // 响应失败则操作台打印错误信息
+                .catch(error => {
+                    console.log(error.response);
+                })
 
         },
 
@@ -46,10 +93,18 @@ let vm = new Vue({
         },
 
         // 校验验证码
-        check_image_code(){
-            if (this.image_code != 4){
-                this.error_image_code_message = '验证码格式不正确',
-                this.error_image_code = true;
+        check_image_code() {
+            if (this.image_code.length != 4) {
+                if (this.image_code.length == 0) {
+                    this.error_image_code_message = '验证码不能为空';
+                    this.error_image_code = true;
+                } else {
+                    this.error_image_code_message = '验证码格式不正确';
+                    this.error_image_code = true;
+                }
+
+            } else {
+                this.error_image_code = false;
             }
         },
 
@@ -118,7 +173,6 @@ let vm = new Vue({
                     })
                         .then(response => {
                             if (response.data.count == 1) {
-                                alert(111111111)
                                 this.error_mobile_message = "该号码已被注册";
                                 this.error_mobile = true;
                             } else {
