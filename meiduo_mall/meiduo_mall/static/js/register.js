@@ -10,6 +10,7 @@ let vm = new Vue({
         allow: '',			// 同意协议
         uuid: '',			// uuid
         image_code: '',
+        sms_code:'',          // 短信验证码
         image_code_url: '',  // 图形验证码请求地址
         sms_code_tip: '获取短信验证码',
 
@@ -21,10 +22,12 @@ let vm = new Vue({
         error_allow: false,
         error_image_code: false,
         sending_flag: false,    // 来判定重复点击的
+        error_tip:false,        // 短信验证码的提示
 
         error_name_message: '',		// 用户名错误提示
         error_mobile_message: '',	// 密码错误提示
         error_image_code_message: '', // 验证码错误提示
+        error_tip_message:"请填写短信验证码",
     },
     // 当页面加载结束，加载图片验证码
     mounted() {
@@ -93,6 +96,16 @@ let vm = new Vue({
                     console.log(error.response);
                 })
 
+        },
+
+        // 检查验证码长度是否有误
+        check_sms_code(){
+            if (this.sms_code.length != 6){
+                this.error_tip_message = '验证码格式错误';
+                this.error_tip = true;
+            } else {
+                this.error_tip = false;
+            }
         },
 
         // 生成图形验证码
