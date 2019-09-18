@@ -1,5 +1,4 @@
 import re
-
 from django import http
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render,redirect
@@ -37,7 +36,7 @@ class LoginView(View):
             return http.HttpResponseForbidden("请输入8-20位的密码")
 
         # 认证用户
-        user = authenticate(username = username, password = password)
+        user = authenticate(request=request, username = username, password = password)
         # 判断用户是否存在
         if user is None:
             return render(request, 'login.html',{'account_errmsg': '用户名或密码错误'})
