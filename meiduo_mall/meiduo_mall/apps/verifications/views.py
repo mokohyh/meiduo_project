@@ -1,6 +1,7 @@
 import random
 from django import http
 from django.shortcuts import render
+from verifications.libs.yuntongxun.ccp_sms import CCP
 # from verifications.libs.twilio_send_note.send_note import Note
 
 # Create your views here.
@@ -9,7 +10,7 @@ from django_redis import get_redis_connection
 
 from meiduo_mall.utils.response_code import RETCODE
 from verifications.libs.captcha.captcha import captcha
-# from celery_tasks.sms.tasks import ccp_send_sms_code
+from celery_tasks.sms.tasks import send_sms_code
 # from verifications.libs.yuntongxun.ccp_sms import sendTemplateSMS
 
 # 短信验证码
@@ -50,9 +51,6 @@ class SMSCodeView(View):
             return http.JsonResponse({'code':RETCODE.IMAGECODEERR, 'errmsg': '验证码有误'})
 
 
-
-
-
         # 生成短信验证码
         sms_code = '%06d'%random.randint(0,999999)
 
@@ -70,12 +68,12 @@ class SMSCodeView(View):
 
         # 发送短信
         # 注意： 测试的短信模板编号为1
-        # sendTemplateSMS('15750258025', [sms_code, 1], 1)
+        # CCP().sendTemplateSMS('15750258025', [sms_code, 1], 1)
         # sendTemplateSMS(mobile, [sms_code, 1], 1)
 
         # 使用Celery发送短信
         # ccp_send_sms_code(mobile, sms_code)         # 错误写法
-        # ccp_send_sms_code.delay(mobile, sms_code)
+        send_sms_code.delay(mobile,sms_code)
 
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})
 
@@ -91,8 +89,8 @@ class ImageCodeView(View):
         '''
         # 实现主体业务逻辑： 生成，保存， 响应图形验证码
         # 生成图形验证码
-        print(uuid)
         text, image = captcha.generate_captcha()
+        print(text)
         # 保存图形验证码
         redis_conn = get_redis_connection('verify_code')
         redis_conn.setex('img_%s'%uuid, 300, text)

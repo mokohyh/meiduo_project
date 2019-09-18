@@ -64,7 +64,7 @@
                         </li>
                         <li class="agreement">
                             <input type="checkbox" name="allow" id="allow" v-model="allow" @change="check_allow">
-                            <label>同意”美多商城用户使用协议“</label>
+                           <label>同意”美多商城用户使用协议“</label>
                             <span class="error_tip" v-show="error_allow">请勾选协议</span>
                             {% if register_errmsg %}
                                 <span class="error_tip2">{{ register_errmsg }}</span>
