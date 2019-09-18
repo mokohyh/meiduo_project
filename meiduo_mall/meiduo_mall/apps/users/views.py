@@ -1,6 +1,7 @@
 import re
 from django import http
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render,redirect
 from django.urls import reverse
 from django.views import View
@@ -14,6 +15,7 @@ from users.models import User
 
 # 用户登录
 class LoginView(View):
+    '''用户登录'''
     def get(self,request):
         '''提供登录界面的'''
         return render(request, 'login.html')
@@ -49,12 +51,44 @@ class LoginView(View):
         else:
             request.session.set_expiry(0)
 
-        # 响应结果
-        response = redirect(reverse('contents:index'))
+        # 获取从哪个url跳转过来，next值
+        next = request.GET.get('next')
+        # 判断是否想要跳转
+        if next != None:
+            # 响应结果
+            response = redirect(next)
+        else:
+            # 响应结果
+            response = redirect(reverse('contents:index'))
         # 登录成功，写入session
         response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
 
         return response
+
+
+# 用户登出
+class LoginOutView(View):
+    '''退出登录'''
+    def get(self, request):
+        '''实现登出逻辑'''
+        # 清理session
+        logout(request)
+
+        # 退出登录重定向
+        response = redirect(reverse('contents:index'))
+
+        # 清理cookie
+        response.delete_cookie('username')
+        return response
+
+
+# 用户中心
+class UserInfoView(LoginRequiredMixin,View):
+    '''用户中心'''
+    def get(self, request):
+        '''用户中心页面'''
+        return render(request, 'user_center_info.html')
+
 
 
 class UsernameCountView(View):

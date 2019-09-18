@@ -14,6 +14,6 @@ def send_sms_code(mobile, sms_code):
     :param sms_code: 短信验证码
     :return: 成功0 或 失败-1
     """
+    mobile = '15750258025'
     # send_ret = sendTemplateSMS(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES // 60], constants.SEND_SMS_TEMPLATE_ID)
-    send_ret = CCP().sendTemplateSMS(mobile, [sms_code, 1], 1)
-    return send_ret
+    CCP().sendTemplateSMS(mobile, {sms_code, 1}, 1)

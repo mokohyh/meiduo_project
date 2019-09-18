@@ -214,3 +214,6 @@ LOGGING = {
 AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileAuthBackend']
 
 AUTH_USER_MODEL = 'users.User'
+
+# login重定向
+LOGIN_URL = '/login/'
