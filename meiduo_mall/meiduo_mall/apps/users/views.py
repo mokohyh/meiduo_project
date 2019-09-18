@@ -48,8 +48,13 @@ class LoginView(View):
             request.session.set_expiry(None)
         else:
             request.session.set_expiry(0)
+
         # 响应结果
-        return redirect(reverse('contents:index'))
+        response = redirect(reverse('contents:index'))
+        # 登录成功，写入session
+        response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+
+        return response
 
 
 class UsernameCountView(View):
@@ -75,6 +80,8 @@ class MobileCountView(View):
         print(count)
         return http.JsonResponse({'code':RETCODE.OK,'errmsg':'ok','count':count})
 
+
+# 注册路由
 class Register(View):
     def get(self, request):
         '''
@@ -134,8 +141,10 @@ class Register(View):
 
         # 状态保持
         login(request, user, backend=None)
+        response = redirect(reverse("contents:index"))
 
-
+        # 写入session
+        response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
 
         # 重定向到首页
-        return redirect(reverse("contents:index"))
+        return response
