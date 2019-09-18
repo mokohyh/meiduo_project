@@ -98,5 +98,6 @@ class Register(View):
         login(request, user, backend=None)
 
 
+
         # 重定向到首页
         return redirect(reverse("contents:index"))
