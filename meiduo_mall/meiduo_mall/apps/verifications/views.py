@@ -29,7 +29,6 @@ class SMSCodeView(View):
         # 提取redis里对应的手机号，判断send_flag
         send_flag = redis_conn.get('send_flag_%s' % mobile)
         if send_flag:
-            print('2' * 34)
             return http.JsonResponse({'code': RETCODE.THROTTLINGERR, 'errmsg': '发送短信过于频繁'})
 
 
@@ -54,8 +53,6 @@ class SMSCodeView(View):
         # 生成短信验证码
         sms_code = '%06d'%random.randint(0,999999)
 
-        print(sms_code)
-
         # logger.info(sms_code)
         # 保存短信验证码
         # pipeline 操作数据库
@@ -68,13 +65,10 @@ class SMSCodeView(View):
         pl.execute()
 
 
-        # 发送短信
+        # 使用Celery异步发送短信
         # 注意： 测试的短信模板编号为1
-        # CCP().sendTemplateSMS('15750258025', [sms_code, 1], 1)
-        # sendTemplateSMS(mobile, [sms_code, 1], 1)
-
-        # 使用Celery发送短信
         # ccp_send_sms_code(mobile, sms_code)         # 错误写法
+        # ubuntu测试发送短信成功，暂时注释
         # send_sms_code.delay(mobile,sms_code)
 
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})

@@ -16,4 +16,5 @@ def send_sms_code(mobile, sms_code):
     """
     mobile = '15750258025'
     # send_ret = sendTemplateSMS(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES // 60], constants.SEND_SMS_TEMPLATE_ID)
-    CCP().sendTemplateSMS(mobile, {sms_code, 1}, 1)
+    result = CCP().sendTemplateSMS(mobile, [sms_code, 1], 1)
+    return result
