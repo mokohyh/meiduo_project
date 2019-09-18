@@ -60,8 +60,8 @@ let vm = new Vue({
             })
                 .then(response => {
                     // 判断后端响应的类型
-                    alert(response.data.code);
                     if (response.data.code == 0) {
+                        this.sending_flag = true;
                         //响应成功，开始倒计时
                         let num = 60;
                         let t = setInterval(() => {
@@ -81,6 +81,7 @@ let vm = new Vue({
                     } else {
                         if (response.data.code == 4001) {
                             this.error_tip_message = response.data.errmsg;
+                            this.generate_image_code();
                             this.error_tip = true;
                         } else if (response.data.code == 4002) {
                             this.error_tip_message = response.data.errmsg;
@@ -103,7 +104,7 @@ let vm = new Vue({
         // 检查验证码长度是否有误
         check_sms_code(){
             if (this.sms_code.length != 6){
-                this.error_tip_message = '验证码格式错误';
+                this.error_tip_message = '号码格式错误';
                 this.error_tip = true;
             } else {
                 this.error_tip = false;

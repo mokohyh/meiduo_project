@@ -37,5 +37,3 @@ def sendTemplateSMS(to, datas, tempId):
     result = rest.sendTemplateSMS(to, datas, tempId)
     print(result)
 
-
-
