@@ -85,7 +85,7 @@ class Register(View):
         sms_code_server = redis_conn.get('sms_%s' % mobile)
         if sms_code_server is None:
             return render(request,'register.html',  {'sms_code_errmsg':'无效的短信验证码'})
-        if sms_code_server != sms_code_client:
+        if sms_code_server.decode() != sms_code_client:
             return render(request, 'register.html', {'sms_code_errmsg': '输入短信验证码有误'})
 
         # 以上都没有错就执行注册数据库

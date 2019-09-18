@@ -54,11 +54,13 @@ class SMSCodeView(View):
         # 生成短信验证码
         sms_code = '%06d'%random.randint(0,999999)
 
+        print(sms_code)
+
         # logger.info(sms_code)
         # 保存短信验证码
         # pipeline 操作数据库
         pl = redis_conn.pipeline()
-        pl.setex('sms_%s'%uuid, 300, sms_code)
+        pl.setex('sms_%s'%mobile, 300, sms_code)
         # 将用户的手机号存入redis
         # redis_conn.setex('send_flag_%s' % mobile, constants.SEND_SMS_CODE_INTERVAL, 1')
         pl.setex('send_flag_%s' % mobile, 300, 1)
@@ -73,7 +75,7 @@ class SMSCodeView(View):
 
         # 使用Celery发送短信
         # ccp_send_sms_code(mobile, sms_code)         # 错误写法
-        send_sms_code.delay(mobile,sms_code)
+        # send_sms_code.delay(mobile,sms_code)
 
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '发送短信成功'})
 
