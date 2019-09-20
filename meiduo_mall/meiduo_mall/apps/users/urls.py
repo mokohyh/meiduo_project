@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import Register,UsernameCountView,MobileCountView,LoginView,LoginOutView,UserInfoView
+from .views import Register,UsernameCountView,MobileCountView,LoginView,LoginOutView,UserInfoView,EmailsView
 
 urlpatterns = [
     url(r'register/$', Register.as_view(),name='register'),
@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'login/$', LoginView.as_view(), name='login'),
     url(r'logout/$', LoginOutView.as_view(), name='logout'),
     url(r'info/$', UserInfoView.as_view(), name='info'),
+    url(r'emails/$', EmailsView.as_view(), name='emails'),
 ]

@@ -1,3 +1,4 @@
+import json
 import re
 from django import http
 from django.contrib.auth import login, authenticate, logout
@@ -87,8 +88,28 @@ class UserInfoView(LoginRequiredMixin,View):
     '''用户中心'''
     def get(self, request):
         '''用户中心页面'''
-        return render(request, 'user_center_info.html')
+        context={
+            'username': request.user.username,
+            'mobile': request.user.mobile,
+            'email': request.user.email,
+            'email_active': request.user.email_active
+        }
+        return render(request, 'user_center_info.html',context)
 
+
+# 邮箱修改
+class EmailsView(View):
+    '''邮箱修改'''
+    def put(self, request):
+        # 接收参数
+        email_client = json.loads(request.body.decode())
+        email_client = email_client.get('email')
+        # 校验参数
+        if not re.match(r'[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}', email_client):
+            return http.HttpResponseForbidden("参数不正确")
+        #
+
+        return http.JsonResponse({'code':RETCODE.OK, 'errmsg': '验证码有误'})
 
 
 class UsernameCountView(View):
