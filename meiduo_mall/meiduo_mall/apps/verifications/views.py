@@ -52,6 +52,7 @@ class SMSCodeView(View):
 
         # 生成短信验证码
         sms_code = '%06d'%random.randint(0,999999)
+        print('短信验证码：',sms_code)
 
         # logger.info(sms_code)
         # 保存短信验证码

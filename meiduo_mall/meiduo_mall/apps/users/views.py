@@ -6,11 +6,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render,redirect
 from django.urls import reverse
 from django.views import View
+# Create your views here
 
-
-# Create your views here.
 from django_redis import get_redis_connection
-
 from meiduo_mall.utils.response_code import RETCODE
 from users.models import User
 
@@ -107,7 +105,7 @@ class EmailsView(View):
         # 校验参数
         if not re.match(r'[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}', email_client):
             return http.HttpResponseForbidden("参数不正确")
-        #
+
 
         return http.JsonResponse({'code':RETCODE.OK, 'errmsg': '验证码有误'})
 
