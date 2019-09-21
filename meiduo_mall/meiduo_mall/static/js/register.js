@@ -54,7 +54,7 @@ let vm = new Vue({
             }
 
             // ajax请求验证码
-            let url = 'sms_codes/' + this.mobile + '/?image_code=' + this.image_code + '&uuid=' + this.uuid;
+            let url = '/sms_codes/' + this.mobile + '/?image_code=' + this.image_code+'&uuid='+ this.uuid;
             axios.get(url, {
                 responseType: "JSON"
             })

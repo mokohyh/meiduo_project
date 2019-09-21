@@ -6,7 +6,6 @@ let vm = new Vue({
 		password: '',
 		image_code: '',
 		sms_code: '',
-		access_token:'',
 
 		error_mobile: false,
 		error_password: false,

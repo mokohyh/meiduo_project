@@ -22,6 +22,5 @@ def check_access_token(openid):
     :return: 解码的openid
     '''
     serializer = Serializer(settings.SECRET_KEY, expires_in=constants.ACCESS_TOKEN_EXPIRES)
-    data = {'openid': openid}
-    token = serializer.loads(data)
-    return token.decode()
+    token = serializer.loads(openid)
+    return token

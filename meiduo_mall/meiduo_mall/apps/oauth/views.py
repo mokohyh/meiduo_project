@@ -62,11 +62,12 @@ class QQAuthUserView(View):
         # 判断是否为美多用户
         # 通过opent_id为查绚条件查绚
         try:
+            print(openid)
             oauth_user = OAuthQQUser.objects.get(openid=openid)
         except OAuthQQUser.DoesNotExist:
             # 没有openid就没有绑定美多
-            access_token = generate_eccess_token(openid)
-            context = {'access_token': access_token}
+            access_token_openid = generate_eccess_token(openid)
+            context = {'access_token_openid': access_token_openid}
             return render(request, 'oauth_callback.html', context)
         else:
             # 有openid则已绑定美多
@@ -75,7 +76,7 @@ class QQAuthUserView(View):
             login(request,qq_user)
 
             # 响应结果
-            next = request.GET.get('next')
+            next = request.GET.get('state')
             response = redirect(next)
 
             # 设置cookie
@@ -89,12 +90,12 @@ class QQAuthUserView(View):
         mobile = request.POST.get('mobile')
         pwd = request.POST.get('password')
         sms_code_client = request.POST.get('sms_code')
-        access_token = request.POST.get('access_token')
-        print(access_token)
+        access_token_openid = request.POST.get('access_token_openid')
+        print(access_token_openid)
 
         # 校验参数
         # 判断参数是否齐全
-        if not all([mobile, pwd, sms_code_client, access_token]):
+        if not all([mobile, pwd, sms_code_client, access_token_openid]):
             return http.HttpResponseForbidden("参数不全")
         # 判断手机号是否合格
         if not re.match(r'^1[3-9]\d{9}$', mobile):
@@ -110,7 +111,9 @@ class QQAuthUserView(View):
         if sms_code_client != sms_code_server.decode():
             return render(request, 'oauth_callback.html', {'sms_code_errmsg': '输入短信验证码有误'})
         # 判断openid是否有效：错误提示放在sms_code_errmsg位置
-        openid = check_access_token(access_token)
+        # openid 是一个字典
+        openid = check_access_token(access_token_openid)
+        openid = openid.get('openid')
         if not openid:
             return render(request, 'oauth_callback.html', {'openid_errmsg': '无效的openid'})
 
@@ -127,6 +130,7 @@ class QQAuthUserView(View):
 
         # 将用户绑定openid
         try:
+            print(openid)
             OAuthQQUser.objects.create(openid=openid, user=user)
         except DatabaseError:
             return render(request, 'oauth_callback.html', {'qq_login_errmsg': 'QQ登录失败'})
@@ -135,7 +139,7 @@ class QQAuthUserView(View):
         login(request, user)
 
         # 响应绑定结果
-        next = request.Get.get('next')
+        next = request.GET.get('state')
         response = redirect(next)
 
         # 设置cookie
