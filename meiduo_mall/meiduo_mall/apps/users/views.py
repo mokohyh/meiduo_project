@@ -9,10 +9,16 @@ from django.views import View
 # Create your views here
 
 from django_redis import get_redis_connection
+
+from celery_tasks.email.tasks import send_verify_email
 from meiduo_mall.utils.response_code import RETCODE
+from meiduo_mall.utils.views import LoginRequiredJSONMixin
 from users.models import User
 
 # 用户登录
+from users.utils import generate_verify_email_url
+
+
 class LoginView(View):
     '''用户登录'''
     def get(self,request):
@@ -96,18 +102,34 @@ class UserInfoView(LoginRequiredMixin,View):
 
 
 # 邮箱修改
-class EmailsView(View):
+class EmailsView(LoginRequiredJSONMixin,View):
     '''邮箱修改'''
     def put(self, request):
         # 接收参数
         email_client = json.loads(request.body.decode())
-        email_client = email_client.get('email')
+        email = email_client.get('email')
         # 校验参数
-        if not re.match(r'[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}', email_client):
+        if not email:
+            return http.HttpResponseForbidden('缺少email参数')
+        if not re.match(r'[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}', email):
             return http.HttpResponseForbidden("参数不正确")
 
+        # 赋值email字段
+        try:
+            request.user.email = email
+            request.user.save()
+        except Exception as e:
+            # 添加日志
+            return http.JsonResponse({'code':RETCODE.DBERR, 'errmsg': '添加失败'})
 
-        return http.JsonResponse({'code':RETCODE.OK, 'errmsg': '验证码有误'})
+        # 生成邮箱验证码
+        verify_url = generate_verify_email_url(request.user)
+        #  celery异步发送邮箱验证
+        send_verify_email.delay(email, verify_url)
+
+
+
+        return http.JsonResponse({'code':RETCODE.OK, 'errmsg': '添加邮箱成功'})
 
 
 class UsernameCountView(View):
@@ -128,7 +150,6 @@ class MobileCountView(View):
         :param mobile: 用户手机好
         :return: JSON
         '''
-
         count = User.objects.filter(mobile=mobile).count()
         print(count)
         return http.JsonResponse({'code':RETCODE.OK,'errmsg':'ok','count':count})
