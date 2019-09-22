@@ -16,7 +16,7 @@ from meiduo_mall.utils.views import LoginRequiredJSONMixin
 from users.models import User
 
 # 用户登录
-from users.utils import generate_verify_email_url
+from users.utils import generate_verify_email_url, check_verify_email
 
 
 class LoginView(View):
@@ -99,6 +99,33 @@ class UserInfoView(LoginRequiredMixin,View):
             'email_active': request.user.email_active
         }
         return render(request, 'user_center_info.html',context)
+
+class VerifyEmailView(View):
+    '''验证邮箱'''
+
+    def get(self,request):
+        '''实现验证链接'''
+
+        # 接收参数
+        token = request.GET.get('token')
+        # 校验参数
+        if not token:
+            return http.HttpResponseForbidden('缺少token参数')
+        # 使用解码工具check_verify_email解码token，提取出user
+        user = check_verify_email(token)
+        # 判断user是否有效
+        if not user:
+            return http.HttpResponseForbidden('无效的token参数')
+        #　修改数据的邮箱激活状态
+        try:
+            user.email_active = True
+            user.save()
+        except Exception as e:
+            # logger.error(e)
+            return http.HttpResponseServerError('激活邮件失败')
+        # 返回响应
+        return redirect(reverse('users:info'))
+
 
 
 # 邮箱修改

@@ -1,10 +1,34 @@
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
+from itsdangerous import BadData
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import re
 
 from users import constants
 from .models import User
+
+
+def check_verify_email(token):
+    '''
+    反序列化接收的ｔｏｋｅｎ，　提取user
+    :param token: 用户签名后的结果
+    :return: usre,None
+    '''
+
+    serializer = Serializer(settings.SECRET_KEY, expires_in=constants.VERIFY_EMAIL_TOKEN_EXPIRES)
+    try:
+        data = serializer.loads(token)
+    except BadData:
+        return None
+    else:
+        user_id = data.get('user_id')
+        email = data.get('email')
+        try:
+            user = User.objects.get(id=user_id, email=email)
+        except User.DoesNotExist:
+            return None
+        else:
+            return user
 
 
 def generate_verify_email_url(user):
