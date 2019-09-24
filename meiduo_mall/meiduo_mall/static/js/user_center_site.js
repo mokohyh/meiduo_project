@@ -206,7 +206,7 @@ let vm = new Vue({
                             } else if (response.data.code == '4101') {
                                 location.href = '/login/?next=/addresses/';
                             } else {
-                                alert(response.data.errmsg);
+                                console.log(response.data.errmsg);
                             }
                         })
                         .catch(error => {

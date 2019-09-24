@@ -126,7 +126,7 @@
                 </ul>
                 <div class="down_btn">
                     <a v-if="address.id!=default_address_id">设为默认</a>
-                    <a href="javascript:;" class="edit_icon">编辑</a>
+                    <a @click="show_edit_site(index)" class="edit_icon">编辑</a>
                 </div>
             </div>
         </div>
