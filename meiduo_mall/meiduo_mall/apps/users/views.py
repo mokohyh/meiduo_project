@@ -84,7 +84,19 @@ class UpdateDestroyAddressView(LoginRequiredJSONMixin, View):
 
     def delete(self, request, address_id):
         '''删除地址'''
-        pass
+        try:
+            # 查询要删除的地址
+            address = Address.objects.get(id=address_id)
+
+            # 将地址逻辑删除设置为True
+            address.is_deleted = True
+            address.save()
+        except Exception as e:
+            # logger.error(e)
+            return http.JsonResponse({'code': RETCODE.DBERR, 'errmsg': '删除地址失败'})
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '删除地址成功'})
+
+
 
 class AddressView(LoginRequiredJSONMixin, View):
     '''用户收货地址'''
