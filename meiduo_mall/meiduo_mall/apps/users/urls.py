@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import Register,UpdateDestroyAddressView,AddressView,CreateAddressView,VerifyEmailView,UsernameCountView,MobileCountView,LoginView,LoginOutView,UserInfoView,EmailsView
+from .views import Register,DefaultAddressView,UpdateDestroyAddressView,AddressView,CreateAddressView,VerifyEmailView,UsernameCountView,MobileCountView,LoginView,LoginOutView,UserInfoView,EmailsView
 
 urlpatterns = [
     url(r'^register/$', Register.as_view(),name='register'),
@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^addresses/create/$', CreateAddressView.as_view(), name='address'),
     # 修改和删除地址
     url(r'^addresses/(?P<address_id>\d+)/$', UpdateDestroyAddressView.as_view(), name='upate'),
+    # 设置默认地址
+    url(r'^addresses/(?P<address_id>\d+)/default/$', DefaultAddressView.as_view(), name='default'),
 
 
 ]
