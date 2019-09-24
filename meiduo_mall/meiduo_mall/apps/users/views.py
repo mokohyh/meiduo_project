@@ -19,6 +19,11 @@ from users.models import User, Address
 from users.utils import generate_verify_email_url, check_verify_email
 
 
+class UpdateDestroyAddressView(LoginRequiredJSONMixin, View):
+    '''修改地址'''
+    pass
+
+
 class AddressView(LoginRequiredJSONMixin, View):
     '''用户收货地址'''
 
@@ -42,6 +47,7 @@ class AddressView(LoginRequiredJSONMixin, View):
                 "mobile": address.mobile,
                 "tel": address.tel,
                 "email": address.email
+
             })
         context = {
             'default_address_id': login_user.default_address_id,
