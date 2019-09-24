@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^',include('users.urls',namespace='users')),
     url(r'^', include('contents.urls', namespace='contents')),
     url(r'^', include('verifications.urls', namespace='verifications')),
-    url(r'^', include('oauth.urls')),
+    url(r'^', include('oauth.urls', namespace='oauth')),
+    url(r'^', include('area.urls', namespace='area')),
 ]
