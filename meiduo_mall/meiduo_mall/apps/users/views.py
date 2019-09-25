@@ -20,6 +20,18 @@ from users.utils import generate_verify_email_url, check_verify_email
 
 
 
+class ChangePasswordView(LoginRequiredJSONMixin, View):
+    '''修改密码'''
+    def get(self, request):
+        '''展示修改页面'''
+        pass
+
+    def post(self, request):
+        '''修改密码'''
+        pass
+
+
+
 class UpdateTitleAddressView(LoginRequiredJSONMixin, View):
     '''设置地址标题'''
     def put(self, request, address_id):
