@@ -118,21 +118,21 @@ let vm = new Vue({
             this.image_code_url = '/image_codes/' + this.uuid + '/';
         },
 
-        // 校验验证码
-        check_image_code() {
-            if (this.image_code.length != 4) {
-                if (this.image_code.length == 0) {
-                    this.error_image_code_message = '验证码不能为空';
-                    this.error_image_code = true;
-                } else {
-                    this.error_image_code_message = '验证码格式不正确';
-                    this.error_image_code = true;
-                }
+            // 校验验证码
+            check_image_code() {
+                if (this.image_code.length != 4) {
+                    if (this.image_code.length == 0) {
+                        this.error_image_code_message = '验证码不能为空';
+                        this.error_image_code = true;
+                    } else {
+                        this.error_image_code_message = '验证码格式不正确';
+                        this.error_image_code = true;
+                    }
 
-            } else {
-                this.error_image_code = false;
-            }
-        },
+                } else {
+                    this.error_image_code = false;
+                }
+            },
 
         // 校验用户名
         check_username() {

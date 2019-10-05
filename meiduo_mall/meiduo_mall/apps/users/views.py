@@ -24,11 +24,46 @@ class ChangePasswordView(LoginRequiredJSONMixin, View):
     '''修改密码'''
     def get(self, request):
         '''展示修改页面'''
-        pass
+        return render(request, 'user_center_pass.html')
 
     def post(self, request):
         '''修改密码'''
-        pass
+
+        # 判断用户是否登陆
+        user = request.user
+        if not user:
+            return redirect(reverse('user：login'))
+        # 接收参数
+        req_data = request.POST
+        old_password = req_data.get('old_password')
+        new_password = req_data.get('new_password')
+        new_password2 = req_data.get('new_password2')
+        # 校验参数
+        if not all([old_password, new_password, new_password2]):
+            return http.HttpResponseForbidden('缺少参数')
+        # 判断当前密码是否正确
+        # is_user = user.check_password(old_password)
+        # if not is_user:
+        #     origin_password_errmsg = '密码错误！'
+        #     return render(request, 'user_center_pass.html', origin_password_errmsg)
+        if new_password != new_password2:
+            change_password_errmsg = '两次密码错误！'
+            return render(request, 'user_center_pass.html', change_password_errmsg)
+
+        # 修改数据库中的密码
+        try:
+            user = User.objects.update(password=new_password)
+            user.save()
+        except Exception as e:
+            change_password_errmsg = '修改密码失败！'
+            return render(request, 'user_center_pass.html', change_password_errmsg)
+        # 断开状态保持
+        # pbkdf2_sha256$36000$dJA72rADi6dl$V/4xYc1M6hgeoM5imJbl4uEjW5YiZqVDrkXE8JXo5sE=
+        # pbkdf2_sha256$36000$dJA72rADi6dl$V/4xYc1M6hgeoM5imJbl4uEjW5YiZqVDrkXE8JXo5sE=
+        response = redirect(reverse('user:login'))
+        # 重定向到登陆页面
+        return response
+
 
 
 
@@ -417,7 +452,7 @@ class MobileCountView(View):
         :return: JSON
         '''
         count = User.objects.filter(mobile=mobile).count()
-        print(count)
+        # print(count)
         return http.JsonResponse({'code':RETCODE.OK,'errmsg':'ok','count':count})
 
 
