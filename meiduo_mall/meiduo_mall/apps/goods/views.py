@@ -6,10 +6,35 @@ from django.shortcuts import render
 from django.views import View
 
 from contents.utils import get_categories
+from goods import models
 from goods.models import GoodsCategory, SKU
 from goods.utils import get_beradcrumb
 from meiduo_mall.utils.response_code import RETCODE
 
+
+class DetailView(View):
+    """商品详情页"""
+
+    def get(self, request, sku_id):
+        """提供商品详情页"""
+        # 获取当前sku的信息
+        try:
+            sku = models.SKU.objects.get(id=sku_id)
+        except models.SKU.DoesNotExist:
+            return render(request, '404.html')
+
+        # 查询商品频道分类
+        categories = get_categories()
+        # 查询面包屑导航
+        breadcrumb = get_beradcrumb(sku.category)
+
+        # 渲染页面
+        context = {
+            'categories': categories,
+            'breadcrumb': breadcrumb,
+            'sku': sku,
+        }
+        return render(request, 'detail.html', context=context)
 
 class HotGoodsView(View):
     '''热销排行商品'''
