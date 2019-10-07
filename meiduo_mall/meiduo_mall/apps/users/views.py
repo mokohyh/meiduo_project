@@ -11,12 +11,44 @@ from django.views import View
 from django_redis import get_redis_connection
 
 from celery_tasks.email.tasks import send_verify_email
+from goods import models
 from meiduo_mall.utils.response_code import RETCODE
 from meiduo_mall.utils.views import LoginRequiredJSONMixin
 from users.models import User, Address
 
 # 用户登录
 from users.utils import generate_verify_email_url, check_verify_email
+
+
+class UserBrowseHistory(LoginRequiredJSONMixin,View):
+    '''用户浏览记录'''
+    def post(self,request):
+        '''保存用户浏览记录'''
+        # 接收参数
+        json_dict = json.loads(request.body.decode())
+        sku_id = json_dict.get('sku_id')
+        # 校验参数
+        try:
+            models.SKU.objects.get(id=sku_id)
+        except models.SKU.DoseNotExist:
+            http.HttpResponseForbidden('sku不存在')
+
+        # 保存浏览记录
+        redis_connt = get_redis_connection('history')
+        pl = redis_connt.pipeline()
+        user_id = request.user.id
+
+        # 先去重 LREM key count value  移除列表元素
+        pl.lrem('history_%s' % user_id, 0, sku_id)
+        # 再储存
+        pl.lpush('history_%s' % user_id, sku_id)
+        # 最后进行截取
+        pl.ltrim('history_%s' % user_id, 0, 4)
+        pl.execute()
+        # 响应结果
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK'})
+
+
 
 
 
@@ -63,7 +95,6 @@ class ChangePasswordView(LoginRequiredJSONMixin, View):
         response = redirect(reverse('user:login'))
         # 重定向到登陆页面
         return response
-
 
 
 
