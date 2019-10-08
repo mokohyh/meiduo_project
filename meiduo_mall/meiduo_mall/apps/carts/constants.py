@@ -1,0 +1,2 @@
+# 未登录用户购物车期限
+CARTS_COOKIE_EXPIRES = 300

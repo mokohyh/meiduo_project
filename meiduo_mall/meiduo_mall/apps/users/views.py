@@ -78,8 +78,6 @@ class UserBrowseHistory(LoginRequiredJSONMixin,View):
 
 
 
-
-
 class ChangePasswordView(LoginRequiredJSONMixin, View):
     '''修改密码'''
     def get(self, request):
