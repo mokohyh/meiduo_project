@@ -13,6 +13,51 @@ from goods import models
 from meiduo_mall.utils.response_code import RETCODE
 
 
+class CartsSelectAllView(View):
+    '''全选购物车'''
+    def put(self, request):
+        """全选购物车信息修改"""
+        # 接收参数
+        json_req = json.loads(request.body.decode())
+        selected = json_req.get('selected',True)
+        # 校验参数
+        if selected:
+            if not isinstance(selected, bool):
+                return http.HttpResponseForbidden("缺少参数")
+        # 判断用户是否登录
+        user = request.user
+        if user is not None and user.is_authenticated:
+            # 已登录，操作数据库
+            redis_conn = get_redis_connection('carts')
+            cart = redis_conn.hgetall('cart_%s' % user.id)
+            sku_id_list = cart.keys()
+            # 判断是否是全选
+            if selected:
+                # 将存在hash里的sku_id遍历放到set里
+                redis_conn.sadd('selected_%s' % user.id, *sku_id_list)
+            else:
+                redis_conn.srem('selected_%s' % user.id, *sku_id_list)
+            # 响应
+            return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '全选购物车成功'})
+
+        else:
+            # 未登录,操作cookies
+            # 获取cookie里的购物车信息
+            carts_data = request.COOKIES.get('carts')
+            response = http.JsonResponse({'code': RETCODE.OK, 'errmsg': '全选购物车成功'})
+            # 方序列化carts_data
+            carts_dict = pickle.loads(base64.b64decode(carts_data.encode()))
+            # 判断是carts_dict是否为空
+            if carts_dict is not None:
+                # 将所有的selecte都修改为True
+                for sku_id in carts_dict:
+                    carts_dict[sku_id]['selected'] = selected
+                cookie_cart = base64.b64encode(pickle.dumps(carts_dict)).decode()
+                response.set_cookie('carts', cookie_cart, max_age=constants.CARTS_COOKIE_EXPIRES)
+            # 响应
+            return response
+
+
 class CartsView(View):
     '''购物车管理'''
     def post(self,request):
