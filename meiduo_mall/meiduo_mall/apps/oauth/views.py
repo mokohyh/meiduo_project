@@ -11,6 +11,7 @@ from django.shortcuts import render,redirect
 from django.views import View
 from django_redis import get_redis_connection
 
+from carts.utils import merge_cart_cookie_to_redis
 from meiduo_mall.utils.response_code import RETCODE
 from meiduo_mall.settings import dev
 from oauth.models import OAuthQQUser
@@ -33,9 +34,6 @@ class QQAuthURLView(View):
         login_url = oauth.get_qq_url()
         # 响应
         return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'login_url': login_url})
-
-
-
 
 
 class QQAuthUserView(View):
@@ -81,6 +79,9 @@ class QQAuthUserView(View):
 
             # 设置cookie
             response.set_cookie('username', qq_user.username, max_age=600 * 24 * 15)
+
+            # 登录成功后合并cookie中购物车
+            response = merge_cart_cookie_to_redis(request, qq_user, response)
 
             return response
 
@@ -144,4 +145,8 @@ class QQAuthUserView(View):
 
         # 设置cookie
         response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+
+        # 登录成功后合并cookie中购物车
+        response = merge_cart_cookie_to_redis(request, user, response)
+
         return response
