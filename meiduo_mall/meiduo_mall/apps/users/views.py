@@ -10,6 +10,7 @@ from django.views import View
 
 from django_redis import get_redis_connection
 
+from carts.utils import merge_cart_cookie_to_redis
 from celery_tasks.email.tasks import send_verify_email
 from goods import models
 from meiduo_mall.utils.response_code import RETCODE
@@ -398,6 +399,9 @@ class LoginView(View):
             response = redirect(reverse('contents:index'))
         # 登录成功，写入session
         response.set_cookie('username', user.username, max_age=3600 * 24 * 15)
+
+        # 登录成功后合并cookie中购物车
+        response = merge_cart_cookie_to_redis(request, user, response)
 
         return response
 
