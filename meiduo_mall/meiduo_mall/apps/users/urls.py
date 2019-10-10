@@ -15,7 +15,7 @@ urlpatterns = [
     # 添加地址
     url(r'^addresses/create/$', CreateAddressView.as_view(), name='address'),
     # 修改和删除地址
-    url(r'^addresses/(?P<address_id>\d+)/$', UpdateDestroyAddressView.as_view(), name='upate'),
+    url(r'^addresses/(?P<address4_id>\d+)/$', UpdateDestroyAddressView.as_view(), name='upate'),
     # 设置默认地址
     url(r'^addresses/(?P<address_id>\d+)/default/$', DefaultAddressView.as_view(), name='default'),
     # 修改地址标题
