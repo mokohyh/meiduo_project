@@ -8,6 +8,7 @@ let vm = new Vue({
         total_selected_count: 0,
         total_selected_amount: 0,
         carts_tmp: [],
+
     },
     computed: {
         selected_all(){
@@ -188,6 +189,7 @@ let vm = new Vue({
         // 购物车全选
         on_selected_all(){
             let selected = !this.selected_all;
+            alert(selected);
             let url = '/carts/selection/';
             axios.put(url, {
                 selected

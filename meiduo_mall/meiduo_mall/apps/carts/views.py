@@ -324,7 +324,7 @@ class CartsView(View):
             pl = redis_conn.pipeline()
             # 删除键，就等价于删除了整条记录
             pl.hdel('cart_%s' % user.id, sku_id)
-            pl.srem('cart_%s' % user.id, sku_id)
+            pl.srem('selected_%s' % user.id, sku_id)
             pl.execute()
             # 删除结束后，没有响应的数据，只需要响应状态码即可
             return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '删除购物车成功'})
